@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tickets</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('Thoyandou Circle.png');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+        .ticket-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 100%;
+        }
+        .route-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+        .map-link {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="ticket-container">
+    <h1>SELECT A TRIP</h1>
+    
+    <div id="ticket-info">
+        <!-- FROM SECTION -->
+    <p><strong>FROM</strong></p>
+        <p id="from_loc">Loading...</p>              <!-- 1. Initial Location -->
+        <p id="from_time">2026-03-30 @ 13:00:00</p>  <!-- 2. Date and Time -->
+        <p id="from_street">96 Rissik St</p>         <!-- 3. Street Name -->
+        <p id="from_station">Park City Transit</p>   <!-- 4. Station Name -->
+
+        <!-- TO SECTION -->
+    <p><strong>TO</strong></p>
+        <p id="to_loc">Loading...</p>                <!-- 1. Destination Location -->
+        <p id="to_time">2026-03-30 @ 18:00:00</p>    <!-- 2. Date and Time -->
+        <p id="to_street">Menlyn Road</p>            <!-- 3. Street Name -->
+        <p id="to_station">PRETORIA CBD</p>          <!-- 4. Station Name -->
+    </div>
+
+    <p><strong>Seats Available:</strong> <span id="available_seats_display">65</span></p>
+    <p><strong>Price:</strong> <span id="display_price">Loading...</span></p>
+    
+    <!-- Dynamic Google Map Link -->
+    <p><a id="google_map" href="#" target="_blank" class="map-link">view map</a></p>
+    
+    <button class="route-btn" onclick="purchaseTicket()">Select Route</button>
+    </div>
+
+    <script>
+        // Data mapping for stations and streets
+        const locationDetails = {
+            "SIBASA": { street: "Sibasa Main Rd", station: "Sibasa Terminal" },
+            "VENDA PLAZA": { street: "Thohoyandou Unit C", station: "Venda Plaza Bus Rank" },
+            "THOHOYANDOU CIRCLE": { street: "Main Circle", station: "Thohoyandou Circle Stop" },
+            "SHAYANDIMA BUS STOP": { street: "Shayandima Main", station: "Shayandima Bus Stop" },
+            "ELIM": { street: "Elim Hospital Rd", station: "Elim Mall Rank" },
+            "THOHOYANDOU": { street: "Punda Maria Rd", station: "Thohoyandou Maniini" },
+            "JOHANNESBURG": { street: "96 Rissik St", station: "Park City Transit" },
+            "PRETORIA": { street: "Menlyn Road", station: "Pretoria CBD" },
+            "CAPE TOWN": { street: "Old Marine Dr", station: "Cape Town Station" },
+            "DURBAN": { street: "NM Braam Fischer Rd", station: "Durban Central" },
+            "POLOKWANE": { street: "Landros Mare St", station: "Polokwane Central" },
+            "SOWETO": { street: "Chris Hani Rd", station: "Baragwanath Taxi Rank" },
+            "TEMBISA": { street: "Andrew Mapheto Dr", station: "Tembisa Plaza" },
+            "MIDRAND": { street: "Old Pretoria Rd", station: "Midrand Gautrain Station" },
+            "PARK STATION": { street: "Rissik St", station: "Johannesburg Park Station" },
+            "DOBSONVILLE": { street: "Commando Rd", station: "Dobsonville Mall" },
+            "ALEX": { street: "London Rd", station: "Alexandra Taxi Rank" },
+            "BENONI": { street: "Tom Jones St", station: "Benoni Plaza" },
+            "GERMISTON": { street: "President St", station: "Germiston Taxi Rank" },
+            "BARA": { street: "Chris Hani Rd", station: "Baragwanath Taxi Rank" }, // Reusing Soweto details
+            "CHIAWELO": { street: "Union Rd", station: "Chiawelo Taxi Rank" },
+            "NELSPRUIT": { street: "Samora Machel Dr", station: "Mbombela Bus Terminal" },
+            "PTA(BOSMAN)": { street: "Bosman St", station: "Bosman Station" },
+            "BRAMFONTEIN BP GARAGE": { street: "Jorissen St", station: "Bramfontein BP" }
+        };
+
+        // Departure time configuration based on location
+        const timeMapping = {
+            "SIBASA": "06:30 AM",
+            "VENDA PLAZA": "06:45 AM",
+            "THOHOYANDOU CIRCLE": "06:50 AM",
+            "SHAYANDIMA BUS STOP": "06:55 AM",
+            "ELIM": "07:10 AM",
+            "THOHOYANDOU": "07:00 AM", // Added Thohoyandou for completeness
+            "JOHANNESBURG": "08:00 AM",
+            "PRETORIA": "09:00 AM",
+            "POLOKWANE": "06:00 AM",
+            "CAPE TOWN": "05:00 AM",
+            "DURBAN": "07:30 AM",
+            "SOWETO": "08:30 AM",
+            "TEMBISA": "07:45 AM",
+            "MIDRAND": "08:15 AM",
+            "PARK STATION": "08:00 AM",
+            "DOBSONVILLE": "08:45 AM",
+            "ALEX": "07:00 AM",
+            "BENONI": "09:30 AM",
+            "GERMISTON": "09:15 AM",
+            "BARA": "08:30 AM",
+            "CHIAWELO": "08:50 AM",
+            "NELSPRUIT": "06:00 AM",
+            "PTA(BOSMAN)": "09:00 AM",
+            "BRAMFONTEIN BP GARAGE": "08:10 AM"
+        };
+
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const from = urlParams.get('from_location') || "Johannesburg";
+        const to = urlParams.get('to_location') || "Pretoria";
+        const date = urlParams.get('departure_date') || "2026-03-30";
+        const price = urlParams.get('price') || "R0.00";
+        const seatsRequested = parseInt(urlParams.get('seats')) || 1;
+
+        // Update FROM details
+        document.getElementById('from_loc').innerText = from.toUpperCase();
+        
+        const depTime = timeMapping[from.toUpperCase()] || "07:00 AM"; // Default departure time
+        document.getElementById('from_time').innerText = date + " @ " + depTime;
+
+        const fromKey = from.toUpperCase();
+        const fromInfo = locationDetails[fromKey] || { street: "Unknown Street", station: "Unknown Station" };
+        document.getElementById('from_street').innerText = fromInfo.street;
+        document.getElementById('from_station').innerText = fromInfo.station;
+
+        // Update TO details
+        document.getElementById('to_loc').innerText = to.toUpperCase();
+        document.getElementById('to_time').innerText = date + " @ 18:00:00";
+        const toKey = to.toUpperCase();
+        const toInfo = locationDetails[toKey] || { street: "Unknown Street", station: "Unknown Station" };
+        document.getElementById('to_street').innerText = toInfo.street;
+        document.getElementById('to_station').innerText = toInfo.station;
+
+        // Update Price Display
+        document.getElementById('display_price').innerText = price;
+
+        // Seat management and Purchase logic
+        let availableSeats = parseInt(localStorage.getItem('availableSeats')) || 65;
+        document.getElementById('available_seats_display').innerText = availableSeats;
+
+        function purchaseTicket() {
+            if (availableSeats >= seatsRequested) {
+                availableSeats -= seatsRequested;
+                localStorage.setItem('availableSeats', availableSeats);
+                document.getElementById('available_seats_display').innerText = availableSeats;
+                
+                // Simulate sending notifications
+                alert(`Ticket purchased successfully for ${seatsRequested} passenger(s)!\n\nA confirmation has been sent to your registered email address and an SMS has been sent to your cellphone number.`);
+            } else {
+                alert("Sorry, there are not enough seats available for this selection.");
+            }
+        }
+
+        // Update Google Maps link based on destination station
+        const destinationStation = toInfo.station; // Use the resolved station name
+        const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(destinationStation + " " + to)}`;
+        document.getElementById('google_map').href = mapUrl;
+    </script>
+</body>
+</html>

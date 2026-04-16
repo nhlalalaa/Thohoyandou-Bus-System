@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Thohoyandou Bus Admin Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+    font-family: Arial;
+    margin: 0;
+    background: #f0f6ff;
+}
+
+.header {
+    background: #0d6efd;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    font-size: 24px;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    padding: 20px;
+}
+
+.card {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+button {
+    background: #0d6efd;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    margin: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #084cdf;
+}
+
+input, select {
+    padding: 7px;
+    margin: 5px 0;
+    width: 95%;
+}
+
+.bus {
+    padding: 6px;
+    margin: 4px 0;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+.rank { background: #d4edda; }
+.left { background: #f8d7da; }
+.maintenance { background: #fff3cd; }
+
+.company {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #0d6efd;
+}
+
+.stats {
+    display: flex;
+    justify-content: space-between;
+}
+
+.stat-box {
+    background: #e9f2ff;
+    padding: 10px;
+    border-radius: 8px;
+    width: 30%;
+    text-align: center;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">Thohoyandou Bus Admin Dashboard</div>
+
+<div class="container">
+
+    <!-- STATS -->
+    <div class="card">
+        <h3>System Overview</h3>
+        <div class="stats">
+            <div class="stat-box">Total<br><span id="total"></span></div>
+            <div class="stat-box">At Rank<br><span id="rank"></span></div>
+            <div class="stat-box">Maintenance<br><span id="maintenanceCount"></span></div>
+        </div>
+
+        <!-- NEW BUTTON -->
+        <button onclick="setMaintenance()">Set Maintenance Buses</button>
+    </div>
+
+    <!-- MANAGE -->
+    <div class="card">
+        <h3>Manage Buses</h3>
+
+        <input type="text" id="busName" placeholder="Bus Name">
+        <input type="text" id="companyName" placeholder="Company Name">
+
+        <select id="busStatus">
+            <option value="rank">At Rank</option>
+            <option value="left">Left Rank</option>
+            <option value="maintenance">Maintenance</option>
+        </select>
+
+        <br>
+        <button onclick="addBus()">Add Bus</button>
+        <button onclick="removeBus()">Remove Bus</button>
+    </div>
+
+    <!-- DRIVER -->
+    <div class="card">
+        <h3>Driver Management</h3>
+        <button onclick="alert('Driver Assigned')">Assign Driver</button>
+        <button onclick="alert('Driver Reassigned')">Reassign Driver</button>
+    </div>
+
+    <!-- MAINTENANCE -->
+    <div class="card">
+        <h3>Under Maintenance</h3>
+        <div id="maintenanceList"></div>
+    </div>
+
+    <!-- ALL BUSES -->
+    <div class="card" style="grid-column: span 2;">
+        <h3>All Buses (Grouped by Company)</h3>
+        <div id="busList"></div>
+    </div>
+
+</div>
+
+<script>
+let buses = [];
+
+function loadBuses() {
+    function addFleet(company, shortC, longC) {
+        for(let i=1;i<=shortC;i++){
+            buses.push({name: "Short " + i, company, status:"rank"});
+        }
+        for(let i=1;i<=longC;i++){
+            buses.push({name: "Long " + i, company, status:"rank"});
+        }
+    }
+
+    addFleet("NETSHUTUNI",20,10);
+    addFleet("ENOS",30,10);
+    addFleet("MULAUDZI",8,5);
+    addFleet("A.M MAGWABA",20,8);
+    addFleet("MABIDI",10,0);
+    addFleet("PHADZIRI",24,8);
+    addFleet("DO LIGHT",12,5);
+
+    displayBuses();
+}
+
+/* NEW FUNCTION */
+function setMaintenance() {
+    let enosCount = 0;
+    let magwabaCount = 0;
+
+    buses.forEach(bus => {
+        if(bus.company === "ENOS" && enosCount < 2){
+            bus.status = "maintenance";
+            enosCount++;
+        }
+        if(bus.company === "A.M MAGWABA" && magwabaCount < 3){
+            bus.status = "maintenance";
+            magwabaCount++;
+        }
+    });
+
+    displayBuses();
+}
+
+/* ADD */
+function addBus(){
+    let name=document.getElementById("busName").value;
+    let company=document.getElementById("companyName").value;
+    let status=document.getElementById("busStatus").value;
+
+    if(name===""||company===""){ alert("Fill all fields"); return;}
+
+    buses.push({name, company, status});
+    displayBuses();
+}
+
+/* REMOVE */
+function removeBus(){
+    let name=document.getElementById("busName").value;
+
+    buses=buses.filter(bus=>bus.name!==name);
+    displayBuses();
+}
+
+/* DISPLAY */
+function displayBuses(){
+    let list=document.getElementById("busList");
+    let maintenance=document.getElementById("maintenanceList");
+
+    list.innerHTML="";
+    maintenance.innerHTML="";
+
+    let grouped={};
+    let total=0, rank=0, maintenanceCount=0;
+
+    buses.forEach(bus=>{
+        if(!grouped[bus.company]){
+            grouped[bus.company]=[];
+        }
+        grouped[bus.company].push(bus);
+    });
+
+    for(let company in grouped){
+        let title=document.createElement("div");
+        title.className="company";
+        title.innerHTML=company;
+        list.appendChild(title);
+
+        grouped[company].forEach(bus=>{
+            total++;
+
+            if(bus.status==="rank") rank++;
+            if(bus.status==="maintenance") maintenanceCount++;
+
+            let div=document.createElement("div");
+            div.classList.add("bus", bus.status);
+            div.innerHTML = bus.name + " ("+bus.status+")";
+
+            let btn=document.createElement("button");
+            btn.innerHTML="Change";
+            btn.onclick=function(){ changeStatus(bus); };
+
+            div.appendChild(btn);
+            list.appendChild(div);
+
+            if(bus.status==="maintenance"){
+                let m=document.createElement("div");
+                m.classList.add("bus","maintenance");
+                m.innerHTML=bus.company+" - "+bus.name;
+                maintenance.appendChild(m);
+            }
+        });
+    }
+
+    document.getElementById("total").innerText=total;
+    document.getElementById("rank").innerText=rank;
+    document.getElementById("maintenanceCount").innerText=maintenanceCount;
+}
+
+/* CHANGE */
+function changeStatus(bus){
+    let newStatus=prompt("Enter: rank / left / maintenance");
+    bus.status=newStatus;
+    displayBuses();
+}
+
+loadBuses();
+</script>
+
+</body>
+</html>

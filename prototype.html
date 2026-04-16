@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thohoyandou Transport Prototype</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Global Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-image: url('Thoyandou Circle.png');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: #f4f4f4;
+        }
+        .screen {
+            display: none;
+            padding: 20px;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .card-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        /* Specific Styles from individual files */
+        button { cursor: pointer; border-radius: 5px; border: none; transition: 0.3s; }
+        input, select { padding: 10px; margin: 10px 0; width: 100%; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; }
+        
+        /* Login/Role Styles */
+        .role-buttons-container { display: flex; gap: 15px; margin: 20px 0; justify-content: center; }
+        .role-btn { width: 120px; height: 60px; background: #007bff; color: white; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        .role-btn i { font-size: 1.2em; margin-bottom: 5px; }
+        .login-btn { background: #28a745; color: white; padding: 15px; width: 100%; font-size: 1.1em; }
+
+        /* Admin Styles */
+        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: left; width: 90%; max-width: 1000px; }
+        .admin-card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .bus { padding: 6px; margin: 4px 0; border-radius: 6px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
+        .rank { background: #d4edda; }
+        .left { background: #f8d7da; }
+        .maintenance { background: #fff3cd; }
+        .company-header { font-weight: bold; color: #0d6efd; margin-top: 15px; }
+
+        /* Schedule Table */
+        table { width: 100%; border-collapse: collapse; background: white; margin-top: 10px; font-size: 0.8em; }
+        th, td { border: 1px solid black; padding: 5px; text-align: left; }
+        th { background: blue; color: white; }
+
+        /* Ticket View */
+        .ticket-details { text-align: left; }
+        .ticket-details p { margin: 5px 0; }
+        .route-btn { background: #007bff; color: white; padding: 12px 24px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <!-- 1. LOGIN SCREEN -->
+    <div id="screen-login" class="screen active">
+        <h1 style="color: white;">Thohoyandou Bus System</h1>
+        <div class="card-container">
+            <h3>Select Your Role</h3>
+            <div class="role-buttons-container">
+                <button class="role-btn" onclick="setRole('Admin')"><i class="fas fa-user-shield"></i>Admin</button>
+                <button class="role-btn" onclick="setRole('Driver')"><i class="fas fa-bus"></i>Driver</button>
+                <button class="role-btn" onclick="setRole('Passenger')"><i class="fas fa-users"></i>Passenger</button>
+            </div>
+            <p align="left">Cellphone Number:</p>
+            <input type="tel" id="login-phone" placeholder="" maxlength="10">
+            <p align="left">Password:</p>
+            <input type="password" id="login-pass" placeholder="">
+            <button class="login-btn" id="loginBtn" onclick="handleLogin()">Log-In as Passenger</button>
+            <p>Don't have an account? <a href="#" onclick="showScreen('screen-signup')">Sign up here</a></p>
+        </div>
+    </div>
+
+    <!-- 2. SIGN-UP SCREEN -->
+    <div id="screen-signup" class="screen">
+        <div class="card-container">
+            <h1>Sign Up</h1>
+            <input type="text" id="reg-fname" placeholder="First Name" required>
+            <input type="text" id="reg-lname" placeholder="Last Name" required>
+            <input type="email" id="reg-email" placeholder="Email Address" required>
+            <input type="tel" id="reg-phone" placeholder="Cellphone Number" required>
+            <input type="password" id="reg-pass" placeholder="Password" required>
+            <input type="password" id="reg-confirm" placeholder="Confirm Password" required>
+            <button class="login-btn" onclick="handleSignup()">Register & Login</button>
+            <p><a href="#" onclick="showScreen('screen-login')">Back to Login</a></p>
+        </div>
+    </div>
+
+    <!-- 3. HOMEPAGE (Quick Search) -->
+    <div id="screen-home" class="screen">
+        <div class="card-container">
+            <h1>Plan Your Trip</h1>
+            <p><strong>FROM</strong></p>
+            <select id="home-from">
+                <option value="Thohoyandou">Thohoyandou</option>
+                <option value="Johannesburg">Johannesburg</option>
+                <option value="Pretoria">Pretoria</option>
+            </select>
+            <p><strong>TO</strong></p>
+            <select id="home-to">
+                <option value="Pretoria">Pretoria</option>
+                <option value="Johannesburg">Johannesburg</option>
+                <option value="Cape Town">Cape Town</option>
+            </select>
+            <button class="login-btn" style="background:#007bff;" onclick="showScreen('screen-trip-type')">Search Buses</button>
+        </div>
+    </div>
+
+    <!-- 4. TRIP TYPE SELECTION -->
+    <div id="screen-trip-type" class="screen">
+        <div class="card-container">
+            <h1>Choose Your Journey</h1>
+            <div id="trip-main-options">
+                <button class="login-btn" style="background:#007bff; margin-bottom:10px;" onclick="showBusCollection('short')">Short Distance Trip</button>
+                <button class="login-btn" style="background:#007bff;" onclick="showCategorySelection()">Long Distance Trip</button>
+            </div>
+            
+            <div id="category-selection" style="display:none;">
+                <h2>Select Category</h2>
+                <button class="login-btn" style="background:#007bff; margin-bottom:10px;" onclick="showBusCollection('commercial')">Commercial Buses</button>
+                <button class="login-btn" style="background:#007bff;" onclick="showBusCollection('local')">Local Buses</button>
+                <button onclick="resetTripSelection()" style="margin-top:10px; background:none; color:blue; text-decoration:underline;">Back</button>
+            </div>
+
+            <div id="bus-list" style="display:none; margin-top:20px; text-align:left;">
+                <h3 id="list-header">Select a Provider</h3>
+                <div id="list-content"></div>
+                <button onclick="resetTripSelection()" style="margin-top:10px; background:none; color:blue; text-decoration:underline;">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. BOOKING FORM -->
+    <div id="screen-bookings" class="screen">
+        <div class="card-container">
+            <h1 id="booking-title">Book Your Ticket</h1>
+            <div style="text-align:left;">
+                <label>Departure Point</label>
+                <select id="book-from"></select>
+                <label>Destination</label>
+                <select id="book-to" onchange="updatePrice()"></select>
+                <label>Seats</label>
+                <input type="number" id="book-seats" value="1" min="1" max="10">
+                <label>Departure Date</label>
+                <input type="date" id="book-date">
+            </div>
+            <button class="login-btn" style="background:#007bff;" onclick="goToTickets()">View Trip Details</button>
+        </div>
+    </div>
+
+    <!-- 6. TICKET / CONFIRMATION -->
+    <div id="screen-tickets" class="screen">
+        <div class="card-container ticket-details">
+            <h1 style="text-align:center;">TRIP DETAILS</h1>
+            <p><strong>FROM:</strong> <span id="t-from"></span></p>
+            <p id="t-from-sub" style="font-size:0.9em; color:#666;"></p>
+            <hr>
+            <p><strong>TO:</strong> <span id="t-to"></span></p>
+            <p id="t-to-sub" style="font-size:0.9em; color:#666;"></p>
+            <hr>
+            <p><strong>Price:</strong> <span id="t-price" style="color:green; font-weight:bold;"></span></p>
+            <p><strong>Available Seats:</strong> <span id="t-avail">65</span></p>
+            <button class="login-btn" style="background:#28a745; margin-top:20px;" onclick="confirmPurchase()">Confirm & Purchase</button>
+            <button onclick="showScreen('screen-home')" style="width:100%; margin-top:10px;">Cancel</button>
+        </div>
+    </div>
+
+    <!-- 7. ADMIN DASHBOARD -->
+    <div id="screen-admin" class="screen" style="background:#f0f6ff; align-items:center; justify-content:flex-start;">
+        <div style="background:#0d6efd; color:white; width:100%; padding:15px; text-align:center; font-size:24px; margin-bottom:20px;">
+            Admin Dashboard
+        </div>
+        <div class="admin-grid">
+            <div class="admin-card">
+                <h3>Stats</h3>
+                <p>Total Buses: <span id="stat-total">0</span></p>
+                <p>At Rank: <span id="stat-rank">0</span></p>
+                <p>Maintenance: <span id="stat-maint">0</span></p>
+                <button onclick="setAdminMaintenance()" style="background:#0d6efd; color:white; padding:5px 10px;">Run Auto-Maintenance</button>
+            </div>
+            <div class="admin-card">
+                <h3>Manage</h3>
+                <input type="text" id="adm-name" placeholder="Bus Name">
+                <input type="text" id="adm-comp" placeholder="Company">
+                <button onclick="addBusAdmin()" style="background:#28a745; color:white; padding:5px 10px;">Add Bus</button>
+                <button onclick="showScreen('screen-login')" style="background:#6c757d; color:white; padding:5px 10px;">Logout</button>
+            </div>
+            <div class="admin-card" style="grid-column: span 2;">
+                <h3>Fleet Status</h3>
+                <div id="admin-bus-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 8. BUS SCHEDULE (For Short Distance) -->
+    <div id="screen-schedule" class="screen">
+        <div class="card-container" style="max-width:900px;">
+            <h2>Short Distance Bus Schedule</h2>
+            <div style="overflow-x:auto;">
+                <table>
+                    <tr><th>Bus Service</th><th>Destinations (Price)</th><th>Morning</th><th>Evening</th><th>Monthly</th></tr>
+                    <tr><td>NETSHUTUNI</td><td>Shayandima (R15), Elim (R50)</td><td>05:30, 06:30</td><td>16:00, 18:00</td><td>R390-R1440</td></tr>
+                    <tr><td>ENOS</td><td>Sibasa (R15), Musina (R150)</td><td>05:00, 06:00</td><td>16:30, 18:30</td><td>R390-R4440</td></tr>
+                    <tr><td>PHADZIRI</td><td>Malamulele (R20), Giyani (R40)</td><td>05:00, 07:00</td><td>16:30, 18:30</td><td>R540-R1650</td></tr>
+                </table>
+            </div>
+            <button class="login-btn" style="margin-top:20px;" onclick="showScreen('screen-trip-type')">Back to Selection</button>
+        </div>
+    </div>
+
+    <script>
+        // --- GLOBAL STATE ---
+        let currentRole = "Passenger";
+        let selectedBus = "";
+        let bookingData = {};
+        let buses = [];
+        const DB_KEY = "thohoyandou_user_db";
+        const EXPIRY_TIME = 5 * 24 * 60 * 60 * 1000; // 5 days in milliseconds
+
+        // --- NAVIGATION LOGIC ---
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            const target = document.getElementById(screenId);
+            if(target) target.classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        // --- LOGIN LOGIC ---
+        function setRole(role) {
+            currentRole = role;
+            document.getElementById('loginBtn').innerText = "Log-In as " + role;
+        }
+
+        function getStoredUsers() {
+            const data = localStorage.getItem(DB_KEY);
+            const users = data ? JSON.parse(data) : [];
+            const now = Date.now();
+            // Filter out users older than 5 days
+            const validUsers = users.filter(u => (now - u.createdAt) < EXPIRY_TIME);
+            if (validUsers.length !== users.length) {
+                localStorage.setItem(DB_KEY, JSON.stringify(validUsers));
+            }
+            return validUsers;
+        }
+
+        function handleSignup() {
+            const fname = document.getElementById('reg-fname').value;
+            const phone = document.getElementById('reg-phone').value;
+            const pass = document.getElementById('reg-pass').value;
+            const confirm = document.getElementById('reg-confirm').value;
+
+            if (!phone || !pass || !fname) {
+                alert("Please fill in all required fields.");
+                return;
+            }
+            if (pass !== confirm) {
+                alert("Passwords do not match.");
+                return;
+            }
+
+            const users = getStoredUsers();
+            users.push({
+                phone: phone,
+                password: pass,
+                name: fname,
+                createdAt: Date.now()
+            });
+
+            localStorage.setItem(DB_KEY, JSON.stringify(users));
+            alert("Registration successful! Your account will be stored for 5 days.");
+            showScreen('screen-trip-type');
+        }
+
+        function handleLogin() {
+            const phone = document.getElementById('login-phone').value;
+            const pass = document.getElementById('login-pass').value;
+
+            if (currentRole === "Admin") {
+                if (phone === "0797845035" && pass === "NT12345") {
+                    initAdmin();
+                    showScreen('screen-admin');
+                } else {
+                    alert("Invalid Admin Credentials");
+                }
+            } else if (currentRole === "Passenger") {
+                const users = getStoredUsers();
+                const user = users.find(u => u.phone === phone && u.password === pass);
+                
+                if (user) {
+                    showScreen('screen-trip-type');
+                } else {
+                    alert("Invalid credentials or account expired. Please sign up again.");
+                }
+            } else {
+                alert(currentRole + " login logic not implemented yet.");
+            }
+        }
+
+        // --- TRIP SELECTION LOGIC ---
+        function showCategorySelection() {
+            document.getElementById('trip-main-options').style.display = 'none';
+            document.getElementById('category-selection').style.display = 'block';
+            document.getElementById('bus-list').style.display = 'none';
+        }
+
+        function resetTripSelection() {
+            document.getElementById('trip-main-options').style.display = 'block';
+            document.getElementById('category-selection').style.display = 'none';
+            document.getElementById('bus-list').style.display = 'none';
+        }
+
+        const busConfigs = {
+            "commercial": ["Intercity", "Greyhound", "Translux", "City to City"],
+            "local": ["Phadziri", "MULAUDZI", "ENOS", "NKHUMELENI", "NETSHITUNI", "MFM"],
+            "short": ["enos_short", "magwaba", "do_light", "netshituni_short", "omega", "mabidi"]
+        };
+
+        function showBusCollection(type) {
+            document.getElementById('trip-main-options').style.display = 'none';
+            document.getElementById('category-selection').style.display = 'none';
+            document.getElementById('bus-list').style.display = 'block';
+            
+            const header = document.getElementById('list-header');
+            const content = document.getElementById('list-content');
+            content.innerHTML = "";
+
+            if (type === 'short') {
+                header.innerText = "Short Distance Providers";
+                const schedBtn = document.createElement('button');
+                schedBtn.className = "login-btn";
+                schedBtn.style.background = "#6c757d";
+                schedBtn.style.marginBottom = "15px";
+                schedBtn.innerText = "View Full Time Schedule";
+                schedBtn.onclick = () => showScreen('screen-schedule');
+                content.appendChild(schedBtn);
+            } else {
+                header.innerText = type.charAt(0).toUpperCase() + type.slice(1) + " Collection";
+            }
+
+            busConfigs[type].forEach(bus => {
+                const btn = document.createElement('button');
+                btn.className = "login-btn";
+                btn.style.background = "#28a745";
+                btn.style.marginBottom = "8px";
+                btn.innerText = bus.replace('_short', '').toUpperCase();
+                btn.onclick = () => selectBus(bus, type);
+                content.appendChild(btn);
+            });
+        }
+
+        // --- BOOKING LOGIC ---
+        const locationData = {
+            "Phadziri": {
+                from: ["sibasa", "VENDA PLAZA", "Thohoyandou circle", "Elim"],
+                to: [{n:"POLOKWANE", p:"R100"}, {n:"PRETORIA", p:"R390"}, {n:"SOWETO", p:"R400"}]
+            },
+            "ENOS": {
+                from: ["sibasa", "VENDA PLAZA", "Elim"],
+                to: [{n:"POLOKWANE", p:"R100"}, {n:"PRETORIA", p:"R390"}, {n:"JOHANNESBURG", p:"R400"}]
+            },
+            "default": {
+                from: ["Thohoyandou", "Johannesburg", "Pretoria"],
+                to: [{n:"Polokwane", p:"R150"}, {n:"Durban", p:"R800"}]
+            }
+        };
+
+        function selectBus(busName, type) {
+            // Redirect to external Bookings.html for Long Distance trips (Commercial or Local)
+            if (type === 'local' || type === 'commercial') {
+                window.location.href = `Bookings.html?bus=${encodeURIComponent(busName)}`;
+                return;
+            }
+
+            selectedBus = busName;
+            const config = locationData[busName] || locationData["default"];
+            
+            const fSelect = document.getElementById('book-from');
+            const tSelect = document.getElementById('book-to');
+            
+            fSelect.innerHTML = config.from.map(l => `<option value="${l}">${l}</option>`).join('');
+            tSelect.innerHTML = config.to.map(l => `<option value="${l.n}" data-price="${l.p}">${l.n}</option>`).join('');
+            
+            document.getElementById('booking-title').innerText = "Book: " + busName.replace('_short', '').toUpperCase();
+            showScreen('screen-bookings');
+        }
+
+        function updatePrice() {
+            // Auto-updates based on selection in tickets screen
+        }
+
+        // --- TICKET LOGIC ---
+        const stations = {
+            "sibasa": { street: "Sibasa Main Rd", station: "Sibasa Terminal" },
+            "VENDA PLAZA": { street: "Thohoyandou Unit C", station: "Venda Plaza Bus Rank" },
+            "Thohoyandou circle": { street: "Main Circle", station: "Thohoyandou Circle Stop" },
+            "Elim": { street: "Elim Hospital Rd", station: "Elim Mall Rank" },
+            "PRETORIA": { street: "Menlyn Road", station: "Pretoria CBD" },
+            "JOHANNESBURG": { street: "96 Rissik St", station: "Park City Transit" },
+            "POLOKWANE": { street: "Landros Mare St", station: "Polokwane Central" }
+        };
+
+        function goToTickets() {
+            const from = document.getElementById('book-from').value;
+            const toSelect = document.getElementById('book-to');
+            const to = toSelect.value;
+            const price = toSelect.options[toSelect.selectedIndex].dataset.price || "R200";
+            const date = document.getElementById('book-date').value || new Date().toISOString().split('T')[0];
+            const seats = document.getElementById('book-seats').value;
+
+            // Redirect to separate Tickets.html file as requested
+            window.location.href = `Tickets.html?from_location=${encodeURIComponent(from)}&to_location=${encodeURIComponent(to)}&departure_date=${date}&price=${price}&seats=${seats}`;
+        }
+
+        function confirmPurchase() {
+            alert("Ticket purchased successfully!\nA confirmation has been sent to your registered email and SMS.");
+            showScreen('screen-home');
+        }
+
+        // --- ADMIN LOGIC ---
+        function initAdmin() {
+            if (buses.length === 0) {
+                addFleet("NETSHUTUNI", 5, 2);
+                addFleet("ENOS", 8, 3);
+                addFleet("PHADZIRI", 10, 4);
+            }
+            renderAdminBuses();
+        }
+
+        function addFleet(company, shortC, longC) {
+            for(let i=1; i<=shortC; i++) buses.push({name: "S-" + i, company, status:"rank"});
+            for(let i=1; i<=longC; i++) buses.push({name: "L-" + i, company, status:"rank"});
+        }
+
+        function renderAdminBuses() {
+            const container = document.getElementById('admin-bus-list');
+            container.innerHTML = "";
+            
+            let grouped = {};
+            let total = 0, rank = 0, maint = 0;
+
+            buses.forEach(b => {
+                if (!grouped[b.company]) grouped[b.company] = [];
+                grouped[b.company].push(b);
+                total++;
+                if (b.status === "rank") rank++;
+                if (b.status === "maintenance") maint++;
+            });
+
+            for (let comp in grouped) {
+                const h = document.createElement('div');
+                h.className = "company-header";
+                h.innerText = comp;
+                container.appendChild(h);
+
+                grouped[comp].forEach(b => {
+                    const row = document.createElement('div');
+                    row.className = `bus ${b.status}`;
+                    row.innerHTML = `<span>${b.name} (${b.status})</span>`;
+                    
+                    const btn = document.createElement('button');
+                    btn.innerText = "Status";
+                    btn.onclick = () => {
+                        const ns = prompt("Enter: rank / left / maintenance", b.status);
+                        if (ns) b.status = ns;
+                        renderAdminBuses();
+                    };
+                    row.appendChild(btn);
+                    container.appendChild(row);
+                });
+            }
+
+            document.getElementById('stat-total').innerText = total;
+            document.getElementById('stat-rank').innerText = rank;
+            document.getElementById('stat-maint').innerText = maint;
+        }
+
+        function addBusAdmin() {
+            const n = document.getElementById('adm-name').value;
+            const c = document.getElementById('adm-comp').value;
+            if (n && c) {
+                buses.push({name: n, company: c, status: 'rank'});
+                renderAdminBuses();
+            }
+        }
+
+        function setAdminMaintenance() {
+            buses.slice(0, 3).forEach(b => b.status = "maintenance");
+            renderAdminBuses();
+        }
+
+        // Init default date
+        document.getElementById('book-date').value = new Date().toISOString().split('T')[0];
+    </script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign-up</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('Thoyandou Circle.png');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+        .signup-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        h1 { text-align: center; color: #333; }
+        label { display: block; margin-top: 15px; font-weight: bold; }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .phone-group, .dob-group {
+            display: flex;
+            gap: 10px;
+        }
+        .phone-group select { width: 40%; }
+        .signup-btn {
+            width: 100%;
+            padding: 12px;
+            margin-top: 25px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .signup-btn:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="signup-container">
+        <h1>Sign Up</h1>
+        <form id="signupForm">
+            <label>Title:</label>
+            <select required>
+                <option value="" selected disabled></option>
+                <option>Mr</option>
+                <option>Mrs</option>
+                <option>Ms</option>
+                <option>Dr</option>
+            </select>
+
+            <label>Gender:</label>
+            <select required>
+                <option value="" selected disabled></option>
+                <option>Male</option>
+                <option>Female</option>
+                <option>Other</option>
+            </select>
+
+            <label>First Name:</label>
+            <input type="text" required>
+
+            <label>Last Name:</label>
+            <input type="text" required>
+
+            <label>ID Number:</label>
+            <input type="text" id="id_number" pattern="[0-9]{13}" maxlength="13" required>
+
+            <label>Date of Birth:</label>
+            <div class="dob-group">
+                <select name="dob_day" required>
+                    <option value="" selected disabled></option>
+                    <!-- Days 1-31 -->
+                    <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+                    <option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
+                    <option>11</option><option>12</option><option>13</option><option>14</option><option>15</option>
+                    <option>16</option><option>17</option><option>18</option><option>19</option><option>20</option>
+                    <option>21</option><option>22</option><option>23</option><option>24</option><option>25</option>
+                    <option>26</option><option>27</option><option>28</option><option>29</option><option>30</option>
+                    <option>31</option>
+                </select>
+                <select name="dob_month" required>
+                    <option value="" selected disabled></option>
+                    <option>January</option>
+                    <option>February</option>
+                    <option>March</option>
+                    <option>April</option>
+                    <option>May</option>
+                    <option>June</option>
+                    <option>July</option>
+                    <option>August</option>
+                    <option>September</option>
+                    <option>October</option>
+                    <option>November</option>
+                    <option>December</option>
+                </select>
+                <select name="dob_year" id="yearSelect" required>
+                    <option value="" selected disabled></option>
+                </select>
+            </div>
+
+            <label>Email Address:</label>
+            <input type="email" required>
+
+            <label>Cellphone Number:</label>
+            <div class="phone-group">
+                <select required>
+                    <option value="+27">+27 (ZA)</option>
+                    <option value="+1">+1 (US)</option>
+                    <option value="+44">+44 (UK)</option>
+                </select>
+                <input type="tel" pattern="[0-9]{10}" maxlength="10" required>
+            </div>
+
+            <label>Password:</label>
+            <input type="password" id="password" required>
+
+            <label>Confirm Password:</label>
+            <input type="password" id="confirm_password" required>
+
+            <button type="submit" class="signup-btn">Sign Up</button>
+        </form>
+    </div>
+
+    <script>
+        const password = document.getElementById("password");
+        const confirmPassword = document.getElementById("confirm_password");
+
+        function validatePassword() {
+            if (password.value !== confirmPassword.value) {
+                confirmPassword.setCustomValidity("Password doesn't match");
+            } else {
+                confirmPassword.setCustomValidity('');
+            }
+        }
+
+        password.onchange = validatePassword;
+        confirmPassword.onkeyup = validatePassword;
+
+        // Populate Year Dropdown
+        const yearSelect = document.getElementById("yearSelect");
+        const currentYear = new Date().getFullYear();
+        for (let i = currentYear; i >= 1920; i--) {
+            const option = document.createElement("option");
+            option.value = i;
+            option.text = i;
+            yearSelect.appendChild(option);
+        }
+    </script>
+</body>
+</html>

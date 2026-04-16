@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookings</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('Thoyandou Circle.png');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .booking-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            color: #555;
+        }
+        select, input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+        }
+        select:focus, input:focus {
+            border-color: #007bff;
+        }
+        .search-btn {
+            display: block;
+            width: 200px;
+            margin: 30px auto 0;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .search-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="booking-container">
+        <h1>BOOK YOUR TICKETS</h1>
+        
+        <form action="Tickets.html" method="GET" class="grid-layout">
+            <div class="form-group">
+                <label>FROM</label>
+                <select name="from_location" id="from_location" required>
+                    <option value="" disabled selected></option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>TO</label>
+                <select name="to_location" id="to_location" required>
+                    <option value="" disabled selected></option>
+                </select>
+            </div>
+
+            <input type="hidden" name="price" id="price_input">
+
+            <div class="form-group">
+                <label>SEATS</label>
+                <select name="seats">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>DEPARTURE DATE</label>
+                <input type="date" id="departure_date" name="departure_date">
+            </div>
+
+            <div class="form-group">
+                <label>RETURN</label>
+                <select name="return_trip" id="return_trip">
+                    <option value="no">No</option>
+                    <option value="yes">Yes</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>RETURN DATE</label>
+                <input type="date" id="return_date" name="return_date" disabled>
+            </div>
+
+            <button type="submit" class="search-btn" style="grid-column: span 2;">search</button>
+        </form>
+    </div>
+
+    <script>
+        // Basic date logic to prevent selecting past dates
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('departure_date').min = today;
+        document.getElementById('departure_date').addEventListener('change', function() {
+            document.getElementById('return_date').min = this.value;
+        });
+
+        // Handle return trip optional logic
+        const returnTripSelect = document.getElementById('return_trip');
+        const returnDateInput = document.getElementById('return_date');
+
+        returnTripSelect.addEventListener('change', function() {
+            if (this.value === 'yes') {
+                returnDateInput.disabled = false;
+            } else {
+                returnDateInput.disabled = true;
+                returnDateInput.value = ""; // Clear date if return is cancelled
+            }
+        });
+
+        // Local Bus Configuration
+        const commonFrom = ["sibasa", "VENDA PLAZA", "Thoyandou circle", "Shayandima BUS STOP", "Elim"];
+        const busConfigs = {
+            "Phadziri": {
+                from: commonFrom,
+                to: [
+                    { name: "POLOKWANE", price: "R100" },
+                    { name: "PRETORIA", price: "R390" },
+                    { name: "TEMBISA", price: "R400" },
+                    { name: "MIDRAND", price: "R400" },
+                    { name: "PARK STATION", price: "R400" },
+                    { name: "DOBSONVILLE", price: "R400" },
+                    { name: "SOWETO", price: "R400" },
+                    { name: "DURBAN", price: "R1000" },
+                    { name: "Cape Town", price: "R1400" }
+                ]
+            },
+            "MULAUDZI": {
+                from: commonFrom,
+                to: [
+                    { name: "PRETORIA", price: "R390" },
+                    { name: "TEMBISA", price: "R400" },
+                    { name: "ALEX", price: "R400" }
+                ]
+            },
+            "ENOS": {
+                from: commonFrom,
+                to: [
+                    { name: "POLOKWANE", price: "R100" },
+                    { name: "PRETORIA", price: "R390" },
+                    { name: "TEMBISA", price: "R400" },
+                    { name: "MIDRAND", price: "R400" },
+                    { name: "BENONI", price: "R400" },
+                    { name: "JOHANNESBURG", price: "R400" },
+                    { name: "SOWETO", price: "R400" }
+                ]
+            },
+            "NKHUMELENI": {
+                from: commonFrom,
+                to: [
+                    { name: "ALEX", price: "R400" },
+                    { name: "GERMISTON", price: "R400" },
+                    { name: "PARK STATION", price: "R400" },
+                    { name: "BARA", price: "R400" },
+                    { name: "CHIAWELO", price: "R400" }
+                ]
+            },
+            "NETSHITUNI": {
+                from: commonFrom,
+                to: [
+                    { name: "POLOKWANE", price: "R100" },
+                    { name: "NELSPRUIT", price: "R390" },
+                    { name: "PTA(bosman)", price: "R390" },
+                    { name: "TEMBISA", price: "R400" },
+                    { name: "MIDRAND", price: "R400" },
+                    { name: "Bramfontein BP garage", price: "R400" },
+                    { name: "Dobsonville", price: "R400" },
+                    { name: "chiawelo", price: "R400" },
+                    { name: "Bara", price: "R400" }
+                ]
+            },
+            "MFM": {
+                from: commonFrom,
+                to: [
+                    { name: "POLOKWANE", price: "R100" },
+                    { name: "Pretoria", price: "R390" },
+                    { name: "TEMBISA", price: "R400" },
+                    { name: "MIDRAND", price: "R400" },
+                    { name: "Johannesburg", price: "R400" },
+                    { name: "SOWETO", price: "R400" }
+                ]
+            }
+        };
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const bus = urlParams.get('bus');
+
+        if (bus && busConfigs[bus]) {
+            const config = busConfigs[bus];
+            const fromSelect = document.getElementById('from_location');
+            const toSelect = document.getElementById('to_location');
+            const priceInput = document.getElementById('price_input');
+
+            // Clear and Populate FROM
+            fromSelect.innerHTML = '<option value="" disabled selected>Select departure</option>';
+            config.from.forEach(loc => {
+                const opt = document.createElement('option');
+                opt.value = loc; opt.innerText = loc;
+                fromSelect.appendChild(opt);
+            });
+
+            // Clear and Populate TO
+            toSelect.innerHTML = '<option value="" disabled selected>Select destination</option>';
+            config.to.forEach(dest => {
+                const opt = document.createElement('option');
+                opt.value = dest.name; opt.innerText = dest.name;
+                opt.dataset.price = dest.price;
+                toSelect.appendChild(opt);
+            });
+
+            toSelect.addEventListener('change', function() {
+                priceInput.value = this.options[this.selectedIndex].dataset.price || "";
+            });
+        }
+    </script>
+</body>
+</html>

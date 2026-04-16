@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Log-In</title>
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<style>
+body {
+    font-family: Arial;
+    text-align: center;
+    background-image: url('Thoyandou Circle.png');
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin: 0;
+    padding: 20px;
+}
+
+h1 {
+    color: whitesmoke;
+    margin-bottom: 20px;
+}
+.welcome-text {
+    color:whitesmoke;
+}
+
+
+.role-buttons-container {
+    display: flex; /* Arrange buttons in a row */
+    justify-content: center; /* Center the buttons horizontally */
+    gap: 20px; /* Space between buttons */
+    margin-top: 20px;
+    margin-bottom: 30px;
+}
+
+.role-btn {
+    width: 180px; /* Adjusted width */
+    height: 70px; /* Increased height */
+    font-size: 1.1em; /* Slightly larger font */
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    display: flex; /* Use flexbox for content inside button */
+    align-items: center; /* Vertically center icon and text */
+    justify-content: center; /* Horizontally center icon and text */
+    transition: background-color 0.3s ease;
+}
+
+.login-box p {
+    margin-bottom: 2px; /* Removes the gap below the label text */
+    margin-top: 15px;   /* Adds a bit of space above the label for clarity */
+}
+
+.left-label {
+    text-align: left;
+    margin-left: 115px; /* Aligns text labels to the left edge of the centered inputs */
+}
+
+input {
+    width: 250px;
+    height: 40px;
+    margin: 10px;
+    margin: 0 10px 10px 10px; /* Removed top margin (first value) */
+    font-size: 16px;
+}
+
+#loginBtn {
+    width: 260px;
+    height: 45px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 20px;
+    border: none;
+    border-radius: 8px;
+    background-color: #28a745;
+    color: white;
+    transition: background-color 0.3s ease;
+}
+
+#loginBtn:hover, .role-btn:hover {
+    background-color: #0056b3; /* Darker blue on hover for role buttons */
+}
+
+#loginBtn:hover {
+    background-color: #218838; /* Darker green on hover for login button */
+}
+
+.role-btn i {
+    margin-right: 8px; /* Space between icon and text */
+    font-size: 1.3em; /* Slightly larger icon */
+}
+
+.login-box {
+    background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 30px 20px;
+    margin: 30px auto; /* Center the box and add vertical margin */
+    max-width: 500px; /* Limit the width of the box */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+</style>
+
+</head>
+<body>
+<h1>Thohoyandou Bus System</h1>
+<p class="welcome-text">Welcome back! Please login to continue</p>
+
+<div class="login-box">
+    <h3>Select Your Role</h3>
+    
+    <div class="role-buttons-container">
+        <button class="role-btn" onclick="setRole('Admin')"><i class="fas fa-user-shield"></i> Admin</button>
+        <button class="role-btn" onclick="setRole('Driver')"><i class="fas fa-bus"></i> Driver</button>
+        <button class="role-btn" onclick="setRole('Passenger')"><i class="fas fa-users"></i> Passenger</button>
+    </div>
+    
+    <p class="left-label">Cellphone Number:</p>
+    <input type="tel" id="phone" placeholder="Enter your phone number" maxlength="10" pattern="[0-9]{10}" required>
+    <p class="left-label">Password:</p>
+    <input type="password" id="password" placeholder="Enter your password" required>
+    <br><br>
+    
+    <button id="loginBtn">Log-In as Passenger</button> <!-- Initial text -->
+    
+    <p style="margin-top: 20px;"><a href="#">Forgot Password?</a></p>
+    <p>Don't have an account? <a href="Sign-up.html">Sign up here</a></p>
+</div>
+
+<script>
+let role = "Passenger";
+
+function setRole(selectedRole) {
+    role = selectedRole;
+    document.getElementById("loginBtn").innerText = "Log-In as " + role;
+}
+
+document.getElementById("loginBtn").onclick = function() {
+    const phoneInput = document.getElementById("phone").value;
+    const passwordInput = document.getElementById("password").value;
+
+    if (role === "Admin") {
+        if (phoneInput === "0797845035" && passwordInput === "NT12345") {
+            window.location.href = "Admin.html?login=success";
+        } else {
+            alert("Incorrect Admin credentials. Access Denied.");
+        }
+    } else if (role === "Passenger") {
+        window.location.href = "Homepage.html";
+    } else {
+        alert(role + " login successful! Redirecting...");
+    }
+};
+</script>
+
+</body>
+</html>

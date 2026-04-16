@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trip Selection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 40px 20px;
+            background-image: url('Thoyandou Circle.png');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: #333;
+        }
+        .btn-main {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        .btn-main:hover {
+            background-color: #0056b3;
+        }
+        .options-panel {
+            margin-top: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .bus-group {
+            margin-bottom: 30px;
+        }
+        .bus-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .bus-btn:hover {
+            background-color: #218838;
+        }
+        h2 {
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            color: #555;
+        }
+        .back-btn {
+            margin-top: 20px;
+            background: none;
+            border: none;
+            color: #007bff;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="trip-selection">
+        <h1>Choose Your Journey</h1>
+        <button class="btn-main" onclick="showCollection('short')">Short Distance Trip</button>
+        <button class="btn-main" onclick="showCategories()">Long Distance Trip</button>
+    </div>
+
+    <div id="category-selection" style="display: none;" class="options-panel">
+        <h2>Select Bus Category</h2>
+        <button class="btn-main" onclick="showCollection('commercial')">Commercial Buses</button>
+        <button class="btn-main" onclick="showCollection('local')">Local Buses</button>
+        <br>
+        <button class="back-btn" onclick="goBack('trip')">Back</button>
+    </div>
+
+    <div id="bus-collection" style="display: none;" class="options-panel">
+        <h2 id="collection-header">Buses Collection</h2>
+        
+        <div id="commercial-list" style="display: none;">
+            <button class="bus-btn" onclick="location.href='Bookings.html'">Intercity</button>
+            <button class="bus-btn" onclick="location.href='Bookings.html'">Greyhound</button>
+            <button class="bus-btn" onclick="location.href='Bookings.html'">Translux</button>
+            <button class="bus-btn" onclick="location.href='Bookings.html'">Intercity</button>
+            <button class="bus-btn" onclick="location.href='Bookings.html'">City to City</button>
+        </div>
+
+        <div id="local-list" style="display: none;">
+            <button class="bus-btn" onclick="location.href='Bookings.html?bus=Phadziri'">Phadziri coaches</button>
+            <button class="bus-btn" onclick="location.href='Bookings.html?bus=MULAUDZI'">MULAUDZI</button>
+            <button class="bus-btn" onclick="location.href='Bookings.html?bus=ENOS'">ENOS LUXURY COACHES</button>
+            <button class="bus-btn" onclick="location.href='Bookings.html?bus=NKHUMELENI'">NKHUMELENI LUXURY COACHES</button>
+            <button class="bus-btn" onclick="location.href='Bookings.html?bus=NETSHITUNI'">NETSHITUNI COACHES</button>
+            <button class="bus-btn" onclick="location.href='Bookings.html?bus=MFM'">MFM COACHES</button>
+        </div>
+
+        <div id="short-distance-list" style="display: none;">
+            <button class="bus-btn" onclick="location.href='Bookings.html?bus=enos_short'">enos luxury coaches</button>
+            <button class="bus-btn" onclick="location.href='Bookings.html?bus=magwaba'">A.M Magwaba Bus Service</button>
+            <button class="bus-btn" onclick="location.href='Bookings.html?bus=do_light'">DO LIGHT TRANSPORT</button>
+            <button class="bus-btn" onclick="location.href='Bookings.html?bus=netshituni_short'">NETSHITUNI Bus Service</button>
+            <button class="bus-btn" onclick="location.href='Bookings.html?bus=mulaudzi_short'">MULAUDZI Bus Service</button>
+            <button class="bus-btn" onclick="location.href='Bookings.html?bus=omega'">Omega Line Coaches</button>
+            <button class="bus-btn" onclick="location.href='Bookings.html?bus=phadziri_short'">Phadziri Bus Services</button>
+            <button class="bus-btn" onclick="location.href='Bookings.html?bus=mabidi'">Mabidi Bus Service</button>
+            <button class="btn-main" onclick="location.href='BusSchedule.html'" style="width: 100%; margin-top: 20px; background-color: #6c757d;">Thohoyandou Bus Schedule</button>
+        </div>
+        
+        <button class="back-btn" onclick="goBack('category')">Back</button>
+    </div>
+
+    <script>
+        function showCategories() {
+            document.getElementById('trip-selection').style.display = 'none';
+            document.getElementById('category-selection').style.display = 'block';
+        }
+
+        function showCollection(type) {
+            document.getElementById('trip-selection').style.display = 'none';
+            document.getElementById('category-selection').style.display = 'none';
+            document.getElementById('bus-collection').style.display = 'block';
+            
+            document.getElementById('commercial-list').style.display = (type === 'commercial' ? 'block' : 'none');
+            document.getElementById('local-list').style.display = (type === 'local' ? 'block' : 'none');
+            document.getElementById('short-distance-list').style.display = (type === 'short' ? 'block' : 'none');
+
+            if (type === 'short') {
+                document.getElementById('collection-header').innerText = 'Short Distance Buses';
+            } else {
+                document.getElementById('collection-header').innerText = (type === 'commercial' ? 'Commercial Collection' : 'Local Collection');
+            }
+        }
+
+        function goBack(step) {
+            if (step === 'trip') {
+                document.getElementById('category-selection').style.display = 'none';
+                document.getElementById('trip-selection').style.display = 'block';
+            } else {
+                if (document.getElementById('short-distance-list').style.display === 'block') {
+                    document.getElementById('bus-collection').style.display = 'none';
+                    document.getElementById('trip-selection').style.display = 'block';
+                } else {
+                    document.getElementById('bus-collection').style.display = 'none';
+                    document.getElementById('category-selection').style.display = 'block';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
